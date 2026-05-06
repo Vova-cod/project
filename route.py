@@ -38,3 +38,24 @@ class Route:
     def __init__(self, name: str):
         self._name = name
         self._segments = []
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def segments(self):
+        return self._segments
+
+    def add_segment(self, segment: Segment):
+        return self._segments.append(segment)
+
+    def get_total_delay(self, vehicle):
+        total_delay = timedelta()
+        for segment in self._segments:
+            total_delay += vehicle.calc_delay(segment)
+        return total_delay
+
+    def get_info(self):
+        return (f"Route: {self._name} |"
+                f"Segments: len({self.segments})")
