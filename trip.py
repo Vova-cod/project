@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta
+import random
 
 class Trip:
-    def __init__(self, vehicle, route, scheduled_time: datatime, actual_time: datatime, passenger: int):
+    def __init__(self, vehicle, route, scheduled_time: datetime, actual_time: datetime):
         self._vehicle = vehicle
         self._route = route
         self._scheduled_time = scheduled_time
         self._actual_time = actual_time
-        self.passenger = passenger
+        self._passengers = self._generate_passengers()
 
     @property
     def vehicle(self):
@@ -25,19 +26,26 @@ class Trip:
         return self._actual_time
 
     @property
-    def passenger(self, value: int):
-        return self._passenger
+    def passengers(self):
+        return self._passengers
 
-    @passenger.setter
-    def passenger(self, value: int):
-        self._passenger = max(0, min(value, self._vehicle.capacity))
+    def _generate_passengers(self) -> int:
+        hour = self._actual_time.hour
+        capacity = self._vehicle.capacity
+
+        if 7 <= hour <= 9 or 17 <= hour <= 19:
+            return random.randint(int(capacity * 0.7), capacity)
+        elif 10 <= hour <= 16:
+            return random.randint(int(capacity * 0.3), int(capacity * 0.6))
+        else:
+            return random.randint(0, int(capacity * 0.3))
 
     def get_delay(self):
         delay = self._actual_time - self._scheduled_time
         return delay if delay.total_seconds() > 0 else 0
 
     def get_percent(self):
-        return round(self._passenger/self._vehicle.capacity * 100, 1)
+        return round(self._passengers/self._vehicle.capacity * 100, 1)
 
     def get_info(self) -> str:
         return (f"{self._vehicle.get_info()} | "
@@ -45,5 +53,4 @@ class Trip:
                 f"Schedule: {self._scheduled_time.strftime('%H:%M')} | "
                 f"Actual time: {self._actual_time.strftime('%H:%M')} | "
                 f"Delay: {self.get_delay()} | "
-                f"Passengers: {self._passenger}/{self._vehicle.capacity} "
-                f"({self.get_percent}%)")
+                f"Passengers: {self.get_percent()}%")
