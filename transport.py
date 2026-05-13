@@ -28,8 +28,7 @@ class Bus(Transport):
 
     def get_info(self):
         return (f"Bus {self._number} | "
-                f"Capacity: {self._capacity} | "
-                f"Traffic level: {self._traffic_level}/10")
+                f"Capacity: {self._capacity}")
 
     def calc_delay(self):
             delay_minut = (self._traffic_level - 1) * 2
@@ -50,8 +49,7 @@ class Tram(Transport):
 
     def get_info(self):
         return (f"Tram {self._number} | "
-                f"Capacity: {self._capacity} | "
-                f"Rail condition: {self._rail_condition}/10")
+                f"Capacity: {self._capacity}")
 
     def calc_delay(self):
         delay_minut = (10 - self._rail_condition) * 3

@@ -97,19 +97,43 @@ def simulate_day(route1, route2, route3, route4, bus1, bus2, tram1, tram2):
 
 def print_report(stats):
     print("=" * 60)
-    print("         CITY TRANSPORT MONITOR — DAILY REPORT")
+    print("    CITY TRANSPORT MONITOR — DAILY REPORT")
     print("=" * 60)
 
-    print("\n ALL TRIPS:")
+    # Группируем рейсы по маршрутам
+    routes_trips = {}
     for trip in stats.trips:
-        print(f"  {trip.get_info()}")
+        route_name = trip.route.name
+        if route_name not in routes_trips:
+            routes_trips[route_name] = trip.route, []
+        routes_trips[route_name][1].append(trip)
 
-    print("\n STATISTICS:")
+    # Выводим по каждому маршруту
+    for route_name, (route, trips) in routes_trips.items():
+        print(f"\n--- {route_name} ---")
+
+        print("  Segments:")
+        for s in route.segments:
+            print(f"    {s.name:<40} | "
+                  f"Traffic: {s.traffic_level}/10 | "
+                  f"Rail: {s.rail_condition}/10 | "
+                  f"Tram lane: {'yes' if s.has_tram_lane else 'no'}")
+
+        print("  Trips:")
+        for trip in trips:
+            print(f"    {trip.vehicle.get_info()} | "
+                  f"Schedule: {trip.scheduled_time.strftime('%H:%M')} | "
+                  f"Actual: {trip.actual_time.strftime('%H:%M')} | "
+                  f"Delay: {trip.get_delay()} | "
+                  f"Passengers: {trip.get_percent()}%")
+
+    print("\n" + "=" * 60)
+    print("  STATISTICS:")
     print(f"  Total trips:        {len(stats.trips)}")
     print(f"  Average delay:      {stats.average_delay()}")
     print(f"  Busiest route:      {stats.busiest_route()}")
 
-    print("\n PASSENGERS BY TIME PERIOD:")
+    print("\n  PASSENGERS BY TIME PERIOD:")
     print(f"  Morning (08:00-10:00): "
           f"{stats.total_passengers(datetime(2024, 1, 1, 8, 0), datetime(2024, 1, 1, 10, 0))} passengers")
     print(f"  Daytime (13:00-14:00): "
