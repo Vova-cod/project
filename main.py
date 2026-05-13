@@ -5,113 +5,100 @@ from trip import Trip
 from statistics import Stats
 
 
-def create_routes():
-    route1 = Route("Route No.1")
-    route1.add_segment(Segment("Centrum → Rynek",
-                                traffic_level=8, rail_condition=5, has_tram_lane=False))
-    route1.add_segment(Segment("Rynek → Plac Wolnosci",
-                                traffic_level=6, rail_condition=6, has_tram_lane=False))
-    route1.add_segment(Segment("Plac Wolnosci → Dworzec Glowny",
-                                traffic_level=4, rail_condition=7, has_tram_lane=False))
+def create_route():
+    name = input("Route name: ")
+    route = Route(name)
 
-    # Route 2 — Bus route (Dworzec → Osiedle)
-    route2 = Route("Route No.2")
-    route2.add_segment(Segment("Dworzec Glowny → Politechnika",
-                                traffic_level=5, rail_condition=8, has_tram_lane=False))
-    route2.add_segment(Segment("Politechnika → Osiedle Kowalskiego",
-                                traffic_level=3, rail_condition=9, has_tram_lane=False))
+    while True:
+        print("\n  1. Add segment")
+        print("  2. Finish route")
+        choice = input("Choice: ")
 
-    # Route 3 — Tram route (Centrum → Park)
-    route3 = Route("Route No.3")
-    route3.add_segment(Segment("Centrum → Uniwersytet",
-                                traffic_level=7, rail_condition=4, has_tram_lane=True))
-    route3.add_segment(Segment("Uniwersytet → Muzeum Narodowe",
-                                traffic_level=5, rail_condition=6, has_tram_lane=False))
-    route3.add_segment(Segment("Muzeum Narodowe → Park Miejski",
-                                traffic_level=2, rail_condition=8, has_tram_lane=True))
+        if choice == "1":
+            seg_name = input("  Segment name (e.g. Centrum → Rynek): ")
 
-    # Route 4 — Tram route (Dworzec → Stadion)
-    route4 = Route("Route No.4")
-    route4.add_segment(Segment("Dworzec Glowny → Plac Konstytucji",
-                                traffic_level=6, rail_condition=3, has_tram_lane=False))
-    route4.add_segment(Segment("Plac Konstytucji → Aleje Jerozolimskie",
-                                traffic_level=8, rail_condition=5, has_tram_lane=True))
-    route4.add_segment(Segment("Aleje Jerozolimskie → Stadion Miejski",
-                                traffic_level=4, rail_condition=7, has_tram_lane=True))
+            while True:
+                try:
+                    traffic = int(input("  Traffic level (1-10): "))
+                    rail = int(input("  Rail condition (1-10): "))
+                    break
+                except ValueError:
+                    print("  Please enter a number!")
 
-    return route1, route2, route3, route4
+            tram_lane = input("  Tram lane? (yes/no): ").strip().lower() == "yes"
+            segment = Segment(seg_name, traffic_level=traffic,
+                              rail_condition=rail, has_tram_lane=tram_lane)
+            route.add_segment(segment)
+            print(f"  Segment '{seg_name}' added!")
+
+        elif choice == "2":
+            if not route.segments:
+                print("  Route must have at least one segment!")
+            else:
+                break
+
+    return route
 
 
-def create_transport():
-    bus1 = Bus("A101")
-    bus2 = Bus("A202")
-    tram1 = Tram("T3")
-    tram2 = Tram("T5")
-    return bus1, bus2, tram1, tram2
+def create_trip(routes):
+    if not routes:
+        print("No routes available! Create a route first.")
+        return None
+
+    print("\nAvailable routes:")
+    for i, route in enumerate(routes):
+        print(f"  {i + 1}. {route.name}")
+
+    while True:
+        try:
+            route_index = int(input("Choose route number: ")) - 1
+            if 0 <= route_index < len(routes):
+                break
+            print("Invalid number!")
+        except ValueError:
+            print("Please enter a number!")
+
+    route = routes[route_index]
+
+    transport_type = input("Transport type (bus/tram): ").strip().lower()
+    number = input("Vehicle number (e.g. A101): ").strip()
+
+    if transport_type == "bus":
+        vehicle = Bus(number)
+    else:
+        vehicle = Tram(number)
+
+    while True:
+        try:
+            scheduled = input("Scheduled time (HH:MM): ").strip()
+            actual = input("Actual time (HH:MM): ").strip()
+            scheduled_time = datetime.strptime(f"2024-01-01 {scheduled}", "%Y-%m-%d %H:%M")
+            actual_time = datetime.strptime(f"2024-01-01 {actual}", "%Y-%m-%d %H:%M")
+            break
+        except ValueError:
+            print("Invalid time format! Use HH:MM")
+
+    return Trip(vehicle, route, scheduled_time, actual_time)
 
 
-def simulate_day(route1, route2, route3, route4, bus1, bus2, tram1, tram2):
-    stats = Stats()
+def show_statistics(stats):
+    if not stats.trips:
+        print("No trips yet!")
+        return
 
-    # Morning rush hour 08:00 - 09:00
-    stats.add_trip(Trip(bus1, route1,
-                        datetime(2024, 1, 1, 8, 0),
-                        datetime(2024, 1, 1, 8, 16)))
-    stats.add_trip(Trip(bus2, route2,
-                        datetime(2024, 1, 1, 8, 15),
-                        datetime(2024, 1, 1, 8, 25)))
-    stats.add_trip(Trip(tram1, route3,
-                        datetime(2024, 1, 1, 8, 30),
-                        datetime(2024, 1, 1, 8, 55)))
-    stats.add_trip(Trip(tram2, route4,
-                        datetime(2024, 1, 1, 8, 45),
-                        datetime(2024, 1, 1, 9, 15)))
-
-    # Daytime 13:00 - 14:00
-    stats.add_trip(Trip(bus1, route2,
-                        datetime(2024, 1, 1, 13, 0),
-                        datetime(2024, 1, 1, 13, 8)))
-    stats.add_trip(Trip(tram1, route4,
-                        datetime(2024, 1, 1, 13, 20),
-                        datetime(2024, 1, 1, 13, 35)))
-    stats.add_trip(Trip(bus2, route1,
-                        datetime(2024, 1, 1, 13, 45),
-                        datetime(2024, 1, 1, 13, 50)))
-
-    # Evening rush hour 17:00 - 19:00
-    stats.add_trip(Trip(bus1, route1,
-                        datetime(2024, 1, 1, 17, 0),
-                        datetime(2024, 1, 1, 17, 20)))
-    stats.add_trip(Trip(tram2, route3,
-                        datetime(2024, 1, 1, 17, 15),
-                        datetime(2024, 1, 1, 17, 45)))
-    stats.add_trip(Trip(bus2, route2,
-                        datetime(2024, 1, 1, 18, 0),
-                        datetime(2024, 1, 1, 18, 12)))
-    stats.add_trip(Trip(tram1, route4,
-                        datetime(2024, 1, 1, 18, 30),
-                        datetime(2024, 1, 1, 19, 5)))
-
-    return stats
-
-
-def print_report(stats):
-    print("=" * 60)
-    print("    CITY TRANSPORT MONITOR — DAILY REPORT")
-    print("=" * 60)
-
-    # Группируем рейсы по маршрутам
     routes_trips = {}
     for trip in stats.trips:
         route_name = trip.route.name
         if route_name not in routes_trips:
-            routes_trips[route_name] = trip.route, []
+            routes_trips[route_name] = (trip.route, [])
         routes_trips[route_name][1].append(trip)
 
-    # Выводим по каждому маршруту
+    print("\n" + "=" * 60)
+    print("    CITY TRANSPORT MONITOR — DAILY REPORT")
+    print("=" * 60)
+
     for route_name, (route, trips) in routes_trips.items():
         print(f"\n--- {route_name} ---")
-
         print("  Segments:")
         for s in route.segments:
             print(f"    {s.name:<40} | "
@@ -143,8 +130,50 @@ def print_report(stats):
     print("=" * 60)
 
 
+def main():
+    stats = Stats()
+    routes = []
+
+    print("=" * 60)
+    print("      CITY TRANSPORT MONITOR")
+    print("=" * 60)
+
+    while True:
+        print("\n1. Create route")
+        print("2. Add trip")
+        print("3. Show statistics")
+        print("4. Export report to file")
+        print("5. Exit")
+        choice = input("\nChoice: ").strip()
+
+        if choice == "1":
+            route = create_route()
+            routes.append(route)
+            print(f"\nRoute '{route.name}' created!")
+
+        elif choice == "2":
+            trip = create_trip(routes)
+            if trip:
+                stats.add_trip(trip)
+                print("Trip added!")
+
+        elif choice == "3":
+            show_statistics(stats)
+
+        elif choice == "4":
+            if not stats.trips:
+                print("No trips yet!")
+            else:
+                filename = stats.export_report()
+                print(f"Report saved to '{filename}'!")
+
+        elif choice == "5":
+            print("Goodbye!")
+            break
+
+        else:
+            print("Invalid choice!")
+
+
 if __name__ == "__main__":
-    route1, route2, route3, route4 = create_routes()
-    bus1, bus2, tram1, tram2 = create_transport()
-    stats = simulate_day(route1, route2, route3, route4, bus1, bus2, tram1, tram2)
-    print_report(stats)
+    main()

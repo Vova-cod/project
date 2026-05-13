@@ -52,3 +52,46 @@ class Stats:
                 f"Passengers: {self.total_passengers(start_time, end_time)} | "
                 f"Busiest route: {self.busiest_route()}")
 
+    def export_report(self):
+        now = datetime.now()
+        filename = f"report_{now.strftime('%Y-%m-%d_%H-%M')}.txt"
+
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write("=" * 60 + "\n")
+            f.write("    CITY TRANSPORT MONITOR — DAILY REPORT\n")
+            f.write(f"    Generated: {now.strftime('%Y-%m-%d %H:%M')}\n")
+            f.write("=" * 60 + "\n")
+
+            routes_trips = {}
+            for trip in self._trips:
+                route_name = trip.route.name
+                if route_name not in routes_trips:
+                    routes_trips[route_name] = (trip.route, [])
+                routes_trips[route_name][1].append(trip)
+
+            for route_name, (route, trips) in routes_trips.items():
+                f.write(f"\n--- {route_name} ---\n")
+
+                f.write("  Segments:\n")
+                for s in route.segments:
+                    f.write(f"    {s.name:<40} | "
+                            f"Traffic: {s.traffic_level}/10 | "
+                            f"Rail: {s.rail_condition}/10 | "
+                            f"Tram lane: {'yes' if s.has_tram_lane else 'no'}\n")
+
+                f.write("  Trips:\n")
+                for trip in trips:
+                    f.write(f"    {trip.vehicle.get_info()} | "
+                            f"Schedule: {trip.scheduled_time.strftime('%H:%M')} | "
+                            f"Actual: {trip.actual_time.strftime('%H:%M')} | "
+                            f"Delay: {trip.get_delay()} | "
+                            f"Passengers: {trip.get_percent()}%\n")
+
+            f.write("\n" + "=" * 60 + "\n")
+            f.write("  STATISTICS:\n")
+            f.write(f"  Total trips:        {len(self._trips)}\n")
+            f.write(f"  Average delay:      {self.average_delay()}\n")
+            f.write(f"  Busiest route:      {self.busiest_route()}\n")
+
+        return filename
+
