@@ -37,7 +37,7 @@ class Stats:
             route_name = trip.route.name
             if route_name not in route_loads:
                 route_loads[route_name] = []
-            route_loads[route_name].append(trip.get_load_percentage())
+            route_loads[route_name].append(trip.get_percent())
 
         average_loads = {}
         for route_name, loads in route_loads.items():

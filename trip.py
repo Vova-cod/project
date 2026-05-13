@@ -47,9 +47,14 @@ class Trip:
     def get_percent(self):
         return round(self._passengers/self._vehicle.capacity * 100, 1)
 
-    def get_info(self) -> str:
+    def get_info(self):
+        segments_info = ", ".join(
+            f"{s.name} (tram lane: {'yes' if s.has_tram_lane else 'no'})"
+            for s in self._route.segments
+        )
         return (f"{self._vehicle.get_info()} | "
                 f"Route: {self._route.name} | "
+                f"Segments: {segments_info} | "
                 f"Schedule: {self._scheduled_time.strftime('%H:%M')} | "
                 f"Actual time: {self._actual_time.strftime('%H:%M')} | "
                 f"Delay: {self.get_delay()} | "
