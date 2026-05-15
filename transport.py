@@ -55,12 +55,5 @@ class Tram(Transport):
         delay_minut = (10 - self._rail_condition) * 3
         return timedelta(minutes=delay_minut)
 
-vehicles = [
-    Bus("А101", traffic_level=7),
-    Tram("Т5", rail_condition=4),
-    Bus("А202", traffic_level=2),
-    ]
-
 for v in vehicles:
     print(v.get_info())
-    print(f"  Delay: {v.calc_delay()}\n")
