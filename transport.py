@@ -30,9 +30,17 @@ class Bus(Transport):
         return (f"Bus {self._number} | "
                 f"Capacity: {self._capacity}")
 
-    def calc_delay(self):
-            delay_minut = (self._traffic_level - 1) * 2
-            return timedelta(minutes=delay_minut)
+    def calc_delay(self, segment, current_time=None):
+        hour = current_time.hour if current_time else 12
+
+        if 7 <= hour <= 9 or 17 <= hour <= 19:
+            multiplier = 1.5
+        elif 10 <= hour <= 16:
+            multiplier = 1.0
+        else:
+            multiplier = 0.5
+        delay_minut = int((segment.traffic_level - 1) * 2 * multiplier)
+        return timedelta(minutes=delay_minut)
 
 class Tram(Transport):
     def __init__(self, number: str, rail_condition: int = 10):
@@ -51,9 +59,29 @@ class Tram(Transport):
         return (f"Tram {self._number} | "
                 f"Capacity: {self._capacity}")
 
-    def calc_delay(self):
-        delay_minut = (10 - self._rail_condition) * 3
+    def calc_delay(self, segment, current_time=None):
+        hour = current_time.hour if current_time else 12
+
+        if 7 <= hour <= 9 or 17 <= hour <= 19:
+            multiplier = 1.5
+        elif 10 <= hour <= 16:
+            multiplier = 1.0
+        else:
+            multiplier = 0.5
+
+        if segment.has_tram_lane:
+            delay_minut = int((10 - segment.rail_condition) * 3 * multiplier)
+        else:
+            delay_minut = int(((10 - segment.rail_condition) * 3 +
+                                 (segment.traffic_level - 1) * 2) * multiplier)
         return timedelta(minutes=delay_minut)
+
+
+vehicles = [
+    Bus("А101"),
+    Tram("Т5"),
+    Bus("А202"),
+    ]
 
 for v in vehicles:
     print(v.get_info())

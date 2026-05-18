@@ -50,10 +50,10 @@ class Route:
     def add_segment(self, segment: Segment):
         return self._segments.append(segment)
 
-    def get_total_delay(self, vehicle):
+    def get_total_delay(self, vehicle, current_time=None):
         total_delay = timedelta()
         for segment in self._segments:
-            total_delay += vehicle.calc_delay(segment)
+            total_delay += vehicle.calc_delay(segment, current_time)
         return total_delay
 
     def get_info(self):
