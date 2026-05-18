@@ -163,7 +163,6 @@ def check_passenger_trip(city_routes, city_vehicles):
         except ValueError:
             print("Invalid time format! Use HH:MM")
 
-    # считаем задержку только на выбранных сегментах
     total_delay = timedelta()
     selected_segments = route.segments[from_index:to_index + 1]
     for segment in selected_segments:
@@ -209,7 +208,6 @@ def main():
     city_vehicles = get_city_vehicles()
     custom_routes = list(city_routes.values())
 
-    # загружаем симуляцию дня сразу
     simulate_city_day(city_routes, city_vehicles, stats)
 
     print("=" * 60)

@@ -42,7 +42,7 @@ class Trip:
 
     def get_delay(self):
         delay = self._actual_time - self._scheduled_time
-        return delay if delay.total_seconds() > 0 else 0
+        return delay if delay.total_seconds() > 0 else timedelta(0)
 
     def get_percent(self):
         return round(self._passengers/self._vehicle.capacity * 100, 1)

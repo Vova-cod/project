@@ -40,7 +40,6 @@ def get_city_routes():
     bus_55.add_segment(Segment("Dw. Łódź Radogoszcz → Łagiewniki",
                                 traffic_level=2, rail_condition=8, has_tram_lane=False))
 
-    # --- BUS LINE 51A (Dw. Łódź Fabryczna → Chojny) ---
     bus_51a = Route("Bus Line 51A (Dw. Łódź Fabryczna → Chojny)")
     bus_51a.add_segment(Segment("Dw. Łódź Fabryczna → Piotrkowska-Centrum",
                                  traffic_level=9, rail_condition=5, has_tram_lane=False))
